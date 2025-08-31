@@ -125,21 +125,24 @@ const LandingPage = () => {
 
       {/* Hero Section */}
       <section className="container mx-auto px-6 py-20 text-center">
-        <div className="max-w-4xl mx-auto animate-fade-in">
+        <div className="max-w-5xl mx-auto animate-fade-in">
+          <div className="mb-8 animate-float">
+            <Shield className="w-20 h-20 text-blue-600 mx-auto mb-6 icon-glow" />
+          </div>
           <h1 className="text-6xl font-bold text-gray-800 mb-6">
-            {t.title}
+            <span className="text-gradient">{t.title}</span>
           </h1>
-          <h2 className="text-2xl text-blue-600 font-semibold mb-8">
+          <h2 className="text-3xl text-blue-600 font-semibold mb-8 animate-slide-in">
             {t.subtitle}
           </h2>
-          <p className="text-xl text-gray-600 mb-12 leading-relaxed">
+          <p className="text-xl text-gray-600 mb-12 leading-relaxed max-w-3xl mx-auto animate-slide-in-right">
             {t.description}
           </p>
           
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 animate-fade-in">
             <Link
               to="/register"
-              className="btn-gradient text-white px-8 py-4 rounded-xl font-semibold text-lg flex items-center space-x-2 shadow-lg"
+              className="btn-gradient text-white px-10 py-5 rounded-2xl font-semibold text-lg flex items-center space-x-3 shadow-glow transform hover:scale-105 transition-all duration-300"
             >
               <span>{t.getStarted}</span>
               <ChevronRight className="w-5 h-5" />
@@ -148,13 +151,13 @@ const LandingPage = () => {
             <div className="flex space-x-3">
               <Link
                 to="/login?role=tourist"
-                className="px-6 py-4 bg-white/70 text-gray-700 rounded-xl font-medium hover:bg-white/90 transition-all shadow-lg"
+                className="px-8 py-4 glass-card text-gray-700 rounded-2xl font-medium hover:bg-white/95 transition-all shadow-lg interactive-element"
               >
                 {t.tourist}
               </Link>
               <Link
                 to="/login?role=authority"
-                className="px-6 py-4 bg-white/70 text-gray-700 rounded-xl font-medium hover:bg-white/90 transition-all shadow-lg"
+                className="px-8 py-4 glass-card text-gray-700 rounded-2xl font-medium hover:bg-white/95 transition-all shadow-lg interactive-element"
               >
                 {t.authority}
               </Link>
@@ -163,24 +166,26 @@ const LandingPage = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-20 max-w-4xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-24 max-w-5xl mx-auto">
           {[t.stats1, t.stats2, t.stats3, t.stats4].map((stat, index) => (
-            <div key={index} className="glass rounded-xl p-6 card-hover">
-              <div className="text-2xl font-bold text-blue-600 mb-2">
-                <Star className="w-6 h-6 mx-auto mb-2" />
+            <div key={index} className="stats-card p-8 card-hover" style={{ animationDelay: `${index * 0.1}s` }}>
+              <div className="text-3xl font-bold text-blue-600 mb-4">
+                <Star className="w-8 h-8 mx-auto mb-3 icon-glow" />
               </div>
-              <div className="text-sm font-medium text-gray-600">{stat}</div>
+              <div className="text-sm font-semibold text-gray-700 tracking-wide">{stat}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-white/50">
+      <section className="py-24 bg-pattern">
         <div className="container mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center text-gray-800 mb-16">{t.features}</h2>
+          <h2 className="text-5xl font-bold text-center text-gray-800 mb-20">
+            <span className="text-gradient">{t.features}</span>
+          </h2>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-7xl mx-auto">
             {[
               { icon: QrCode, title: t.digitalId, desc: t.digitalIdDesc },
               { icon: MapPin, title: t.realtimeMonitoring, desc: t.realtimeDesc },
@@ -189,10 +194,12 @@ const LandingPage = () => {
               { icon: Globe, title: t.multilingual, desc: t.multilingualDesc },
               { icon: Shield, title: t.aiPowered, desc: t.aiDesc },
             ].map((feature, index) => (
-              <div key={index} className="glass rounded-xl p-8 card-hover animate-slide-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                <feature.icon className="w-12 h-12 text-blue-600 mb-6" />
-                <h3 className="text-xl font-semibold text-gray-800 mb-4">{feature.title}</h3>
-                <p className="text-gray-600">{feature.desc}</p>
+              <div key={index} className="feature-card p-10 card-hover animate-slide-in" style={{ animationDelay: `${index * 0.15}s` }}>
+                <div className="mb-8">
+                  <feature.icon className="w-16 h-16 text-blue-600 mx-auto icon-glow" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-6">{feature.title}</h3>
+                <p className="text-gray-600 leading-relaxed text-lg">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -200,23 +207,25 @@ const LandingPage = () => {
       </section>
 
       {/* How It Works */}
-      <section className="py-20">
+      <section className="py-24 bg-mesh">
         <div className="container mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center text-gray-800 mb-16">{t.howItWorks}</h2>
+          <h2 className="text-5xl font-bold text-center text-gray-800 mb-20">
+            <span className="text-gradient">{t.howItWorks}</span>
+          </h2>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-7xl mx-auto">
             {[
               { step: t.step1, desc: t.step1Desc },
               { step: t.step2, desc: t.step2Desc },
               { step: t.step3, desc: t.step3Desc },
               { step: t.step4, desc: t.step4Desc },
             ].map((item, index) => (
-              <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6">
+              <div key={index} className="text-center animate-fade-in" style={{ animationDelay: `${index * 0.2}s` }}>
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-8 shadow-glow animate-float" style={{ animationDelay: `${index * 0.5}s` }}>
                   {index + 1}
                 </div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">{item.step}</h3>
-                <p className="text-gray-600">{item.desc}</p>
+                <h3 className="text-xl font-bold text-gray-800 mb-6">{item.step}</h3>
+                <p className="text-gray-600 leading-relaxed text-lg">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -224,46 +233,48 @@ const LandingPage = () => {
       </section>
 
       {/* Demo Flow */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+      <section className="py-24 hero-gradient text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/10"></div>
         <div className="container mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold mb-12">{t.demoFlow}</h2>
+          <h2 className="text-5xl font-bold mb-16 animate-fade-in">{t.demoFlow}</h2>
           
-          <div className="flex flex-col md:flex-row items-center justify-center space-y-8 md:space-y-0 md:space-x-8 max-w-4xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-center space-y-8 md:space-y-0 md:space-x-8 max-w-6xl mx-auto">
             {[t.demoStep1, t.demoStep2, t.demoStep3, t.demoStep4].map((step, index) => (
               <React.Fragment key={index}>
-                <div className="glass-dark rounded-xl p-6 flex-1">
-                  <div className="text-lg font-medium">{step}</div>
+                <div className="glass-dark rounded-2xl p-8 flex-1 animate-slide-in" style={{ animationDelay: `${index * 0.2}s` }}>
+                  <div className="text-lg font-semibold leading-relaxed">{step}</div>
                 </div>
                 {index < 3 && (
-                  <ChevronRight className="w-6 h-6 hidden md:block" />
+                  <ChevronRight className="w-8 h-8 hidden md:block animate-pulse" />
                 )}
               </React.Fragment>
             ))}
           </div>
           
-          <div className="mt-12">
+          <div className="mt-16 animate-fade-in">
             <Link
               to="/register"
-              className="btn-success text-gray-800 px-8 py-4 rounded-xl font-semibold text-lg inline-flex items-center space-x-2 shadow-lg"
+              className="btn-success text-white px-12 py-6 rounded-2xl font-bold text-xl inline-flex items-center space-x-3 shadow-glow-success transform hover:scale-105 transition-all duration-300"
             >
               <span>{t.getStarted}</span>
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-6 h-6" />
             </Link>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 bg-gray-800 text-white">
+      <footer className="py-16 bg-gradient-to-r from-gray-900 to-slate-800 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-pattern opacity-20"></div>
         <div className="container mx-auto px-6 text-center">
-          <div className="flex items-center justify-center space-x-3 mb-6">
-            <Shield className="w-8 h-8 text-blue-400" />
-            <span className="text-2xl font-bold">{t.title}</span>
+          <div className="flex items-center justify-center space-x-4 mb-8">
+            <Shield className="w-10 h-10 text-blue-400 icon-glow" />
+            <span className="text-3xl font-bold text-gradient">{t.title}</span>
           </div>
-          <p className="text-gray-400 mb-4">
+          <p className="text-gray-300 mb-8 text-lg max-w-2xl mx-auto leading-relaxed">
             {t.subtitle}
           </p>
-          <div className="flex justify-center space-x-6">
+          <div className="flex justify-center space-x-8">
             <Link to="/register" className="text-blue-400 hover:text-blue-300 transition-colors">
               {t.getStarted}
             </Link>
