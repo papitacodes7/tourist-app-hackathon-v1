@@ -90,6 +90,41 @@ cd Tourist-app-main
 
 ## 🏃‍♂️ Running the Application
 
+### 🚀 **Quick Start - Deploy for Worldwide Access**
+
+The fastest way to get SafeTrail accessible to anyone in the world:
+
+```bash
+# Option 1: One-click deployment helper
+./deploy.sh
+
+# Option 2: Direct server launch
+python start_server.py
+
+# Option 3: Manual deployment
+cd backend && python -m uvicorn demo_server:app --host 0.0.0.0 --port 8000
+```
+
+**Your app will be running at:**
+- **API**: `http://your-server-ip:8000`
+- **Documentation**: `http://your-server-ip:8000/docs`
+- **Health Check**: `http://your-server-ip:8000/health`
+
+### 🌐 **Production Deployment Options**
+
+Choose any free platform for worldwide deployment:
+
+| Platform | Deployment Time | SSL | Custom Domain |
+|----------|----------------|-----|---------------|
+| **Railway.app** ⭐ | 2 minutes | ✅ | ✅ |
+| **Render.com** | 5 minutes | ✅ | ✅ |
+| **Fly.io** | 3 minutes | ✅ | ✅ |
+| **Docker** | 1 minute | ⚙️ | ⚙️ |
+
+**👉 [Complete Deployment Guide](./DEPLOYMENT_GUIDE.md)**
+
+### 💻 **Local Development**
+
 ### Option 1: Quick Start (Demo Mode - Recommended)
 
 For testing and development without MongoDB:
