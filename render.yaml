@@ -1,0 +1,19 @@
+# Render.com deployment configuration for SafeTrail Backend
+# Place this file in the root directory for automatic deployment
+
+services:
+  - type: web
+    name: safetrail-backend
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: "cd backend && pip install -r requirements.txt"
+    startCommand: "cd backend && python -m uvicorn demo_server:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: JWT_SECRET_KEY  
+        value: "safetrail-jwt-secret-key-2024-change-in-production-render"
+      - key: PYTHON_VERSION
+        value: "3.12.3"
+    healthCheckPath: "/docs"

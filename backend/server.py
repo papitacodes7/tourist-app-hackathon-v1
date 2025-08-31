@@ -428,6 +428,26 @@ async def initialize_demo_data():
 # Include the router in the main app
 app.include_router(api_router)
 
+# Add health check endpoint
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "message": "SafeTrail API is running",
+        "version": "1.0.0",
+        "deployment": "production"
+    }
+
+# Add root endpoint for easy testing
+@app.get("/")
+async def root():
+    return {
+        "message": "Welcome to SafeTrail API",
+        "docs": "/docs", 
+        "health": "/health",
+        "api": "/api"
+    }
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -446,3 +466,12 @@ logger = logging.getLogger(__name__)
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
+if __name__ == "__main__":
+    import uvicorn
+    
+    # Get host and port from environment variables or use defaults
+    host = os.environ.get("HOST", "0.0.0.0")
+    port = int(os.environ.get("PORT", 8000))
+    
+    uvicorn.run(app, host=host, port=port, reload=False)

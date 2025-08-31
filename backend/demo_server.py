@@ -370,6 +370,46 @@ async def create_high_risk_zone(zone_data: HighRiskZone, current_user: User = De
 # Include the router in the main app
 app.include_router(api_router)
 
+# Add health check endpoint
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "message": "SafeTrail API is running",
+        "version": "1.0.0",
+        "deployment": "demo",
+        "uptime": "server_running"
+    }
+
+# Add root endpoint for easy testing
+@app.get("/")
+async def root():
+    return {
+        "message": "Welcome to SafeTrail API - Smart Tourist Safety Platform",
+        "docs": "/docs",
+        "health": "/health", 
+        "api": "/api",
+        "demo_credentials": {
+            "tourist": {"email": "tourist@demo.com", "password": "demo123"},
+            "authority": {"email": "authority@demo.com", "password": "demo123"}
+        }
+    }
+
+# Add deployment info endpoint
+@app.get("/info")
+async def deployment_info():
+    import os
+    return {
+        "app_name": "SafeTrail",
+        "version": "1.0.0",
+        "deployment": "demo",
+        "host": os.environ.get("HOST", "0.0.0.0"),
+        "port": os.environ.get("PORT", 8000),
+        "users_count": len(users_db),
+        "zones_count": len(high_risk_zones_db),
+        "alerts_count": len(alerts_db)
+    }
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -389,4 +429,10 @@ async def startup_event():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000, reload=True)
+    import os
+    
+    # Get host and port from environment variables or use defaults
+    host = os.environ.get("HOST", "0.0.0.0")
+    port = int(os.environ.get("PORT", 8000))
+    
+    uvicorn.run(app, host=host, port=port, reload=True)

@@ -13,12 +13,16 @@ import LandingPage from './components/LandingPage';
 
 import './App.css';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://127.0.0.1:8000';
 const API = `${BACKEND_URL}/api`;
+
+// Log the backend URL for debugging
+console.log('🔗 Backend URL:', BACKEND_URL);
 
 // Create axios instance with interceptor for token
 const api = axios.create({
   baseURL: API,
+  timeout: 30000, // 30 seconds timeout for production deployments
 });
 
 api.interceptors.request.use((config) => {

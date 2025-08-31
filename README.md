@@ -2,6 +2,18 @@
 
 SafeTrail is a comprehensive tourist safety application that provides real-time location tracking, emergency alerts, and safety monitoring for tourists and authorities.
 
+## 🌐 **Deploy for Worldwide Access**
+
+**Want to make this app accessible to anyone in the world?** 
+
+👉 **[See our Complete Deployment Guide](./DEPLOYMENT_GUIDE.md)** for free deployment options on Railway, Render, Fly.io, and more!
+
+🚀 **Quick Deploy Options:**
+- **Railway.app**: One-click deployment with automatic HTTPS
+- **Render.com**: Free tier with custom domains  
+- **Docker**: Deploy anywhere with containerization
+- **Netlify/Vercel**: Frontend-only deployment options
+
 ## 🚀 Features
 
 - **Tourist Dashboard**: Real-time location tracking, safety scores, and emergency panic button
