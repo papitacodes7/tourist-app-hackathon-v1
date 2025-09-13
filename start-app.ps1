@@ -46,9 +46,9 @@ try {
 
 # Check frontend
 try {
-    $FrontendCheck = Test-NetConnection -ComputerName "127.0.0.1" -Port 3000 -InformationLevel Quiet
+    $FrontendCheck = Test-NetConnection -ComputerName "127.0.0.1" -Port 3001 -InformationLevel Quiet
     if ($FrontendCheck) {
-        Write-Host "✅ Frontend Server: Running on http://localhost:3000" -ForegroundColor Green
+        Write-Host "✅ Frontend Server: Running on http://localhost:3001" -ForegroundColor Green
     }
 } catch {
     Write-Host "❌ Frontend Server: Not responding" -ForegroundColor Red
@@ -56,7 +56,7 @@ try {
 
 Write-Host ""
 Write-Host "🎯 Quick Access:" -ForegroundColor Magenta
-Write-Host "   • Web App: http://localhost:3000" -ForegroundColor White
+Write-Host "   • Web App: http://localhost:3001" -ForegroundColor White
 Write-Host "   • API Docs: http://127.0.0.1:8000/docs" -ForegroundColor White
 Write-Host ""
 Write-Host "🔑 Demo Credentials:" -ForegroundColor Magenta
@@ -71,7 +71,7 @@ Write-Host ""
 $OpenBrowser = Read-Host "Would you like to open the app in your browser? (y/n)"
 if ($OpenBrowser -eq "y" -or $OpenBrowser -eq "Y") {
     Start-Sleep -Seconds 2
-    Start-Process "http://localhost:3000"
+    Start-Process "http://localhost:3001"
     Write-Host "🌐 Opening app in browser..." -ForegroundColor Green
 }
 

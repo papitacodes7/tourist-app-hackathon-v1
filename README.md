@@ -10,6 +10,9 @@ SafeTrail is a comprehensive tourist safety application that provides real-time 
 - **Emergency Alerts**: Instant panic button and geo-fence violation alerts
 - **High-Risk Zone Mapping**: Visual representation of dangerous areas
 - **Family Tracking**: Enable family members to track tourist locations
+- **Modern UI/UX**: Beautiful gradients, smooth animations, and responsive design
+- **Theme Toggle**: Light and dark mode support for better accessibility
+- **Performance Optimized**: Built with Vite for fast development and production builds
 
 ## 📋 Prerequisites
 
@@ -24,9 +27,75 @@ Before running the application, ensure you have the following installed:
 - **MongoDB** (for persistent data storage)
 - **Docker** (for containerized MongoDB)
 
-## 🛠️ Installation & Setup
+## � Configuration
 
-### Step 1: Clone/Download the Project
+The application uses environment variables for configuration.
+
+### Backend Configuration (backend/.env)
+
+```env
+# Database Configuration
+MONGO_URL=mongodb://localhost:27017
+DB_NAME=safetrail_database
+
+# Security Configuration
+JWT_SECRET_KEY=your-secret-key-here
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_HOURS=24
+
+# CORS Configuration (comma-separated origins)
+CORS_ORIGINS=http://localhost:3001,http://127.0.0.1:3001
+
+# Server Configuration
+HOST=127.0.0.1
+PORT=8000
+DEBUG=true
+
+# Application Mode
+APP_MODE=demo  # Set to 'production' for MongoDB mode
+
+# Email Configuration (for future features)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USERNAME=your-email@gmail.com
+EMAIL_PASSWORD=your-app-password
+
+# Logging
+LOG_LEVEL=INFO
+```
+
+### Frontend Configuration (frontend/.env)
+
+```env
+# Backend API URL
+VITE_BACKEND_URL=http://127.0.0.1:8000
+
+# Application Configuration
+VITE_APP_NAME=SafeTrail
+VITE_APP_VERSION=1.0.0
+VITE_APP_MODE=development
+
+# Map Configuration
+VITE_MAP_API_KEY=your-map-api-key-here
+VITE_DEFAULT_MAP_CENTER_LAT=28.6139
+VITE_DEFAULT_MAP_CENTER_LNG=77.2090
+
+# Features Toggle
+VITE_ENABLE_DARK_MODE=true
+VITE_ENABLE_NOTIFICATIONS=true
+VITE_ENABLE_LOCATION_TRACKING=true
+
+# Development Configuration
+VITE_DEBUG=true
+VITE_LOG_LEVEL=info
+```
+
+### Security Notes
+
+- **JWT_SECRET_KEY**: Change this to a strong, unique secret key in production
+- **CORS_ORIGINS**: Limit to specific domains in production, never use "*"
+- **Database**: Use authentication and SSL in production MongoDB setups
+- **Environment Files**: Never commit .env files to version control
 ```bash
 # If using git
 git clone <repository-url>
@@ -65,15 +134,13 @@ cd Tourist-app-main
 
 2. **Install Node.js dependencies:**
    ```bash
-   npm install --legacy-peer-deps
+   npm install
    ```
-   > **Note:** Use `--legacy-peer-deps` flag to resolve dependency conflicts.
 
 3. **Environment Configuration:**
    Update the `.env` file in the frontend directory:
    ```
-   REACT_APP_BACKEND_URL=http://127.0.0.1:8000
-   WDS_SOCKET_PORT=3000
+   VITE_BACKEND_URL=http://127.0.0.1:8000
    ```
 
 ## 🏃‍♂️ Running the Application
@@ -99,28 +166,71 @@ For testing and development without MongoDB:
 2. **Start the Frontend Server (in a new terminal):**
    ```bash
    cd frontend
-   npm start
+   npm run dev
    ```
    
-   The React development server will start and automatically open your browser to `http://localhost:3000`.
+   The Vite development server will start and automatically open your browser to `http://localhost:3001`.
 
 ### Option 2: Full Setup (with MongoDB)
 
 For production-like environment with persistent data:
 
-1. **Start MongoDB:**
+#### MongoDB Setup Options
+
+**Option A: Using Docker (Recommended)**
+```bash
+# Pull and run MongoDB container
+docker run -d -p 27017:27017 --name safetrail-mongodb \
+  -e MONGO_INITDB_ROOT_USERNAME=admin \
+  -e MONGO_INITDB_ROOT_PASSWORD=password123 \
+  mongo:latest
+
+# Verify MongoDB is running
+docker ps | grep safetrail-mongodb
+```
+
+**Option B: Using Local MongoDB Installation**
+```bash
+# Install MongoDB Community Edition (varies by OS)
+# For Windows: Download from https://www.mongodb.com/try/download/community
+# For Ubuntu: sudo apt install mongodb
+# For macOS: brew install mongodb/brew/mongodb-community
+
+# Start MongoDB service
+# Windows: net start MongoDB
+# Linux/macOS: sudo systemctl start mongod
+mongod --dbpath /path/to/your/data/directory
+```
+
+**Option C: Using MongoDB Atlas (Cloud)**
+1. Create account at https://cloud.mongodb.com/
+2. Create a free cluster
+3. Get connection string
+4. Update backend/.env file with your connection string
+
+#### Environment Configuration
+
+1. **Update Backend Environment:**
+   Edit `backend/.env` file:
+   ```env
+   # Change from demo to production mode
+   APP_MODE=production
    
-   **Using Docker:**
-   ```bash
-   docker run -d -p 27017:27017 --name mongodb mongo:latest
-   ```
+   # Update MongoDB connection (choose one):
+   # For local MongoDB:
+   MONGO_URL=mongodb://localhost:27017
    
-   **Using Local MongoDB Installation:**
-   ```bash
-   mongod --dbpath /path/to/your/data/directory
+   # For MongoDB with authentication:
+   MONGO_URL=mongodb://admin:password123@localhost:27017
+   
+   # For MongoDB Atlas:
+   MONGO_URL=mongodb+srv://username:password@cluster.mongodb.net
+   
+   # Update database name
+   DB_NAME=safetrail_production
    ```
 
-2. **Create Demo Users:**
+2. **Initialize Database with Demo Data:**
    ```bash
    cd backend
    python create_demo_users.py
@@ -128,19 +238,78 @@ For production-like environment with persistent data:
 
 3. **Start the Production Backend:**
    ```bash
+   # Make sure you're in the backend directory
+   cd backend
+   
+   # Start with production server.py instead of demo_server.py
    python -m uvicorn server:app --host 127.0.0.1 --port 8000 --reload
    ```
 
 4. **Start the Frontend:**
    ```bash
    cd ../frontend
-   npm start
+   npm run dev
    ```
+
+#### Switching Between Demo and Production Modes
+
+**To switch to Demo Mode:**
+1. Update `backend/.env`: Set `APP_MODE=demo`
+2. Start with: `python -m uvicorn demo_server:app --reload`
+
+**To switch to Production Mode:**
+1. Ensure MongoDB is running
+2. Update `backend/.env`: Set `APP_MODE=production`
+3. Run database initialization: `python create_demo_users.py`
+4. Start with: `python -m uvicorn server:app --reload`
+
+#### Troubleshooting MongoDB Setup
+
+**Common Issues:**
+
+1. **"MongoDB connection failed"**
+   - Verify MongoDB is running: `docker ps` or `sudo systemctl status mongod`
+   - Check connection string in .env file
+   - Ensure firewall allows port 27017
+
+2. **"Authentication failed"**
+   - Verify username/password in connection string
+   - For local MongoDB, you may need to create a user:
+     ```bash
+     mongosh
+     use admin
+     db.createUser({user:"admin", pwd:"password123", roles:["root"]})
+     ```
+
+3. **"Database not found"**
+   - Database will be created automatically on first connection
+   - Run `python create_demo_users.py` to populate initial data
+
+**MongoDB Management Commands:**
+```bash
+# Connect to MongoDB shell
+mongosh
+
+# Show databases
+show dbs
+
+# Use SafeTrail database
+use safetrail_production
+
+# Show collections
+show collections
+
+# Query users
+db.users.find()
+
+# Drop database (careful!)
+db.dropDatabase()
+```
 
 ## 🌐 Accessing the Application
 
 ### Web Interface
-- **Frontend URL**: http://localhost:3000
+- **Frontend URL**: http://localhost:3001
 - **Backend API**: http://127.0.0.1:8000
 - **API Documentation**: http://127.0.0.1:8000/docs (Swagger UI)
 
@@ -150,6 +319,22 @@ For production-like environment with persistent data:
 |------|-------|----------|-------------|
 | Tourist | `tourist@demo.com` | `demo123` | Access tourist dashboard with safety features |
 | Authority | `authority@demo.com` | `demo123` | Access authority dashboard for monitoring |
+
+## ⚡ Recent Updates & Modernization
+
+### Frontend Modernization (September 2025)
+- **Migration to Vite**: Upgraded from Create React App to Vite 7.1.5 for faster builds and HMR
+- **React 19**: Updated to latest React version with modern features
+- **Component Architecture**: Converted all components to `.jsx` extensions for better clarity
+- **Performance**: Optimized animations and scroll behavior for smooth user experience
+- **Theme System**: Added light/dark mode toggle with glassmorphic design
+- **Build Optimization**: Improved build times and development experience
+
+### Key Technical Improvements
+- **ESLint Configuration**: Modern flat config with comprehensive rules
+- **Tailwind CSS**: Latest version with custom component library integration
+- **TypeScript Support**: Ready for future TypeScript adoption
+- **Modern Bundling**: Tree-shaking and code-splitting optimizations
 
 ## 🔧 Development
 
@@ -161,10 +346,13 @@ For production-like environment with persistent data:
 
 ### Frontend Development
 - **Framework**: React 19
-- **Build Tool**: CRACO (Create React App Configuration Override)
-- **UI Library**: Radix UI + Tailwind CSS
+- **Build Tool**: Vite 7.1.5 (Modern ES Build Tool)
+- **UI Library**: shadcn/ui (Radix UI + Tailwind CSS)
+- **Styling**: Tailwind CSS 3.4.17
 - **Maps**: Leaflet/React-Leaflet
 - **QR Codes**: react-qr-code
+- **Icons**: Lucide React
+- **Notifications**: Sonner
 
 ### Available Scripts
 
@@ -191,13 +379,19 @@ mypy .
 **Frontend:**
 ```bash
 # Start development server
+npm run dev
+
+# Alternative start command
 npm start
 
 # Build for production
 npm run build
 
-# Run tests
-npm test
+# Preview production build
+npm run preview
+
+# Run linting
+npm run lint
 ```
 
 ## 🐛 Troubleshooting
@@ -209,12 +403,13 @@ npm test
    - Or install and start MongoDB locally
 
 2. **"Module not found" errors in frontend**
-   - Run: `npm install --legacy-peer-deps --force`
+   - Run: `npm install`
    - Delete `node_modules` and `package-lock.json`, then reinstall
+   - Ensure you're using Node.js 16+ for Vite compatibility
 
 3. **CORS errors**
    - Ensure backend is running on port 8000
-   - Check that frontend `.env` has correct `REACT_APP_BACKEND_URL`
+   - Check that frontend `.env` has correct `VITE_BACKEND_URL`
 
 4. **Login fails**
    - Verify backend is running and accessible
@@ -223,7 +418,7 @@ npm test
 
 ### Port Conflicts
 - Backend default port: `8000`
-- Frontend default port: `3000`
+- Frontend default port: `3001` (Vite auto-detects and uses next available)
 - MongoDB default port: `27017`
 
 If ports are occupied, modify the start commands:
@@ -231,8 +426,8 @@ If ports are occupied, modify the start commands:
 # Backend on different port
 python -m uvicorn demo_server:app --port 8001
 
-# Frontend on different port
-PORT=3001 npm start
+# Frontend on different port (Vite will auto-increment if 3001 is busy)
+npm run dev -- --port 3002
 ```
 
 ## 🔐 Security Notes

@@ -9,6 +9,11 @@ import jwt
 import bcrypt
 import random
 import hashlib
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # In-memory storage (for demo purposes only)
 users_db: Dict[str, Any] = {}
@@ -22,9 +27,19 @@ app = FastAPI(title="SafeTrail API", description="Smart Tourist Safety & Inciden
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
-# Security
+# Security configuration from environment variables
 security = HTTPBearer()
-SECRET_KEY = "safetrail-jwt-secret-key-2024-change-in-production"
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "safetrail-jwt-secret-key-2024-change-in-production")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+JWT_EXPIRE_HOURS = int(os.getenv("JWT_EXPIRE_HOURS", "24"))
+
+# CORS configuration from environment variables
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3001").split(",")
+
+# Server configuration
+HOST = os.getenv("HOST", "127.0.0.1")
+PORT = int(os.getenv("PORT", "8000"))
+DEBUG = os.getenv("DEBUG", "true").lower() == "true"
 
 # Models
 class UserRole(str):
@@ -110,19 +125,19 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(hours=24)
+        expire = datetime.now(timezone.utc) + timedelta(hours=JWT_EXPIRE_HOURS)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm="HS256")
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=JWT_ALGORITHM)
     return encoded_jwt
 
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
-        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=["HS256"])
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[JWT_ALGORITHM])
         user_id: str = payload.get("sub")
         if user_id is None:
             raise HTTPException(status_code=401, detail="Invalid authentication credentials")
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid authentication credentials")
+    except jwt.PyJWTError as e:
+        raise HTTPException(status_code=401, detail=f"Invalid authentication credentials: {str(e)}")
     
     user_data = users_db.get(user_id)
     if user_data is None:
@@ -212,50 +227,82 @@ def initialize_demo_data():
 # Authentication endpoints
 @api_router.post("/auth/register", response_model=Token)
 async def register_user(user_data: UserCreate):
-    # Check if user already exists
-    existing_user = next((u for u in users_db.values() if u['email'] == user_data.email), None)
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    # Hash password
-    hashed_password = hash_password(user_data.password)
-    
-    # Create user
-    user_dict = user_data.dict()
-    del user_dict['password']
-    user = User(**user_dict)
-    user_doc = user.dict()
-    user_doc['hashed_password'] = hashed_password
-    
-    users_db[user.id] = user_doc
-    
-    # Create tourist profile if role is tourist
-    if user_data.role == UserRole.TOURIST:
-        tourist_profile = TouristProfile(user_id=user.id)
-        if user_data.emergency_contact and user_data.emergency_phone:
-            tourist_profile.emergency_contacts = [{
-                "name": user_data.emergency_contact,
-                "phone": user_data.emergency_phone,
-                "relationship": "Emergency Contact"
-            }]
-        tourist_profiles_db[tourist_profile.id] = tourist_profile.dict()
-    
-    # Generate token
-    access_token = create_access_token(data={"sub": user.id})
-    return Token(access_token=access_token, token_type="bearer", user=user)
+    try:
+        # Validate email format
+        if not user_data.email:
+            raise HTTPException(status_code=400, detail="Email is required")
+        
+        # Check if user already exists
+        existing_user = next((u for u in users_db.values() if u['email'] == user_data.email), None)
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
+        
+        # Validate password strength
+        if len(user_data.password) < 6:
+            raise HTTPException(status_code=400, detail="Password must be at least 6 characters long")
+        
+        # Hash password
+        hashed_password = hash_password(user_data.password)
+        
+        # Create user
+        user_dict = user_data.dict()
+        del user_dict['password']
+        user = User(**user_dict)
+        user_doc = user.dict()
+        user_doc['hashed_password'] = hashed_password
+        
+        users_db[user.id] = user_doc
+        
+        # Create tourist profile if role is tourist
+        if user_data.role == UserRole.TOURIST:
+            tourist_profile = TouristProfile(user_id=user.id)
+            if user_data.emergency_contact and user_data.emergency_phone:
+                tourist_profile.emergency_contacts = [{
+                    "name": user_data.emergency_contact,
+                    "phone": user_data.emergency_phone,
+                    "relationship": "Emergency Contact"
+                }]
+            tourist_profiles_db[tourist_profile.id] = tourist_profile.dict()
+        
+        # Generate token
+        access_token = create_access_token(data={"sub": user.id})
+        return Token(access_token=access_token, token_type="bearer", user=user)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
 
 @api_router.post("/auth/login", response_model=Token)
 async def login_user(login_data: UserLogin):
-    # Find user
-    user_doc = next((u for u in users_db.values() if u['email'] == login_data.email), None)
-    if not user_doc or not verify_password(login_data.password, user_doc['hashed_password']):
-        raise HTTPException(status_code=401, detail="Invalid email or password")
-    
-    user = User(**user_doc)
-    
-    # Generate token
-    access_token = create_access_token(data={"sub": user.id})
-    return Token(access_token=access_token, token_type="bearer", user=user)
+    try:
+        # Validate input
+        if not login_data.email or not login_data.password:
+            raise HTTPException(status_code=400, detail="Email and password are required")
+        
+        # Find user
+        user_doc = next((u for u in users_db.values() if u['email'] == login_data.email), None)
+        if not user_doc:
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+        
+        # Verify password
+        if not verify_password(login_data.password, user_doc['hashed_password']):
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+        
+        # Check if user is active
+        if not user_doc.get('is_active', True):
+            raise HTTPException(status_code=401, detail="Account is disabled")
+        
+        user = User(**user_doc)
+        
+        # Generate token
+        access_token = create_access_token(data={"sub": user.id})
+        return Token(access_token=access_token, token_type="bearer", user=user)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Login failed: {str(e)}")
 
 # Tourist endpoints
 @api_router.get("/tourist/profile", response_model=TouristProfile)
@@ -373,20 +420,45 @@ app.include_router(api_router)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origins=CORS_ORIGINS,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# Error handlers
+@app.exception_handler(404)
+async def not_found_handler(request, exc):
+    return HTTPException(status_code=404, detail="Resource not found")
+
+@app.exception_handler(500)
+async def internal_server_error_handler(request, exc):
+    return HTTPException(status_code=500, detail="Internal server error")
+
+# Health check endpoint
+@api_router.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "version": "1.0.0",
+        "mode": "demo"
+    }
 
 # Initialize demo data on startup
 @app.on_event("startup")
 async def startup_event():
-    initialize_demo_data()
-    print("✅ Demo server started with test data!")
-    print("🔑 Test Credentials:")
-    print("   Tourist: tourist@demo.com / demo123")
-    print("   Authority: authority@demo.com / demo123")
+    try:
+        initialize_demo_data()
+        print("✅ Demo server started with test data!")
+        print("🔑 Test Credentials:")
+        print("   Tourist: tourist@demo.com / demo123")
+        print("   Authority: authority@demo.com / demo123")
+        print(f"🌐 Server running on {HOST}:{PORT}")
+        print(f"🔧 CORS origins: {CORS_ORIGINS}")
+    except Exception as e:
+        print(f"❌ Error starting server: {e}")
+        raise
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run(app, host=HOST, port=PORT, reload=DEBUG)

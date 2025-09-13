@@ -21,13 +21,45 @@ const api = axios.create({
   baseURL: API,
 });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// Request interceptor to add auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    console.error('Request interceptor error:', error);
+    return Promise.reject(error);
   }
-  return config;
-});
+);
+
+// Response interceptor to handle common errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Unauthorized - clear tokens and redirect to login
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+      toast.error('Session expired. Please login again.');
+    } else if (error.response?.status === 403) {
+      toast.error('Access denied. Insufficient permissions.');
+    } else if (error.response?.status >= 500) {
+      toast.error('Server error. Please try again later.');
+    } else if (error.code === 'ERR_NETWORK') {
+      toast.error('Network error. Please check your connection.');
+    } else if (error.response?.data?.detail) {
+      toast.error(error.response.data.detail);
+    } else {
+      toast.error('An unexpected error occurred.');
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Auth Context
 const AuthContext = React.createContext();
@@ -60,15 +92,27 @@ const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (token, userData) => {
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
+    try {
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+      toast.success(`Welcome back, ${userData.full_name}!`);
+    } catch (error) {
+      console.error('Error during login:', error);
+      toast.error('Failed to save login information.');
+    }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
+    try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setUser(null);
+      toast.success('Logged out successfully.');
+    } catch (error) {
+      console.error('Error during logout:', error);
+      toast.error('Error during logout.');
+    }
   };
 
   return (
@@ -105,19 +149,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 function App() {
   const { user } = useAuth();
 
-  // Initialize demo data on app start
-  useEffect(() => {
-    const initializeDemoData = async () => {
-      try {
-        await api.post('/init-demo-data');
-        console.log('Demo data initialized');
-      } catch (error) {
-        console.error('Error initializing demo data:', error);
-      }
-    };
-
-    initializeDemoData();
-  }, []);
+  // Note: Demo data is automatically initialized by the backend server on startup
 
   return (
     <div className="App min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -164,6 +196,27 @@ function App() {
 
 // Wrapper with AuthProvider
 function AppWrapper() {
+  // Prevent page scroll on reload
+  useEffect(() => {
+    // Disable browser's scroll restoration
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    
+    // Add loading class to prevent scroll during load
+    document.documentElement.classList.add('loading');
+    
+    // Force page to start at top on reload
+    window.scrollTo(0, 0);
+    
+    // Remove loading class after brief delay
+    const timer = setTimeout(() => {
+      document.documentElement.classList.remove('loading');
+    }, 50);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <AuthProvider>
       <App />
