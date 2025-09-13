@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Shield, Mail, Lock, LogIn, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
-import { api } from '../App';
-import { useAuth } from '../App';
+import { api } from '../App.jsx';
+import { useAuth } from '../App.jsx';
 
 const LoginPage = () => {
   const navigate = useNavigate();

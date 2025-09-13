@@ -14,9 +14,9 @@ import {
   Wifi
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { api, useAuth } from '../App';
+import { api, useAuth } from '../App.jsx';
 import QRCode from 'react-qr-code';
-import TouristMap from './TouristMap';
+import TouristMap from './TouristMap.jsx';
 
 const TouristDashboard = () => {
   const { user, logout } = useAuth();
@@ -275,7 +275,7 @@ const TouristDashboard = () => {
               <div className="grid md:grid-cols-2 gap-4">
                 <button
                   onClick={triggerPanicAlert}
-                  className="btn-danger p-6 rounded-xl font-semibold text-lg flex items-center justify-center space-x-3 animate-pulse-gentle"
+                  className="btn-danger p-6 rounded-xl font-semibold text-lg flex items-center justify-center space-x-3"
                 >
                   <AlertTriangle className="w-6 h-6" />
                   <span>PANIC BUTTON</span>

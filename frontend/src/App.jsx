@@ -5,15 +5,15 @@ import { Toaster } from './components/ui/sonner';
 import { toast } from 'sonner';
 
 // Import components
-import LoginPage from './components/LoginPage';
-import TouristDashboard from './components/TouristDashboard';
-import AuthorityDashboard from './components/AuthorityDashboard';
-import RegistrationPage from './components/RegistrationPage';
-import LandingPage from './components/LandingPage';
+import LoginPage from './components/LoginPage.jsx';
+import TouristDashboard from './components/TouristDashboard.jsx';
+import AuthorityDashboard from './components/AuthorityDashboard.jsx';
+import RegistrationPage from './components/RegistrationPage.jsx';
+import LandingPage from './components/LandingPage.jsx';
 
 import './App.css';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 // Create axios instance with interceptor for token
@@ -39,7 +39,6 @@ export const useAuth = () => {
   }
   return context;
 };
-
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -124,11 +123,7 @@ function App() {
     <div className="App min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <Router>
         <Routes>
-          <Route path="/" element={user ? (
-            user.role === 'tourist' ? <Navigate to="/tourist/dashboard" replace /> :
-            user.role === 'authority' ? <Navigate to="/authority/dashboard" replace /> :
-            <LandingPage />
-          ) : <LandingPage />} />
+          <Route path="/" element={<LandingPage />} />
           
           <Route path="/register" element={<RegistrationPage />} />
           <Route path="/login" element={<LoginPage />} />

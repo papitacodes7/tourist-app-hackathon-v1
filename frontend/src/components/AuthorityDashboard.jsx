@@ -15,8 +15,8 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { api, useAuth } from '../App';
-import TouristMap from './TouristMap';
+import { api, useAuth } from '../App.jsx';
+import TouristMap from './TouristMap.jsx';
 
 const AuthorityDashboard = () => {
   const { user, logout } = useAuth();
