@@ -17,6 +17,7 @@ import {
 import { toast } from 'sonner';
 import { api, useAuth } from '../App.jsx';
 import TouristMap from './TouristMap.jsx';
+import Logo from './Logo.jsx';
 
 const AuthorityDashboard = () => {
   const { user, logout } = useAuth();
@@ -124,7 +125,7 @@ const AuthorityDashboard = () => {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Shield className="w-8 h-8 text-indigo-600" />
+              <Logo variant="icon" context="panel" size="default" />
               <div>
                 <h1 className="text-xl font-bold text-gray-800">Authority Control Center</h1>
                 <p className="text-sm text-gray-600">Welcome, {user.full_name}</p>

@@ -4,6 +4,7 @@ import { Shield, User, Mail, Phone, Lock, UserCheck, Users, ArrowLeft } from 'lu
 import { toast } from 'sonner';
 import { api } from '../App.jsx';
 import { useAuth } from '../App.jsx';
+import Logo from './Logo.jsx';
 
 const RegistrationPage = () => {
   const navigate = useNavigate();
@@ -85,7 +86,7 @@ const RegistrationPage = () => {
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <Shield className="w-8 h-8 text-white" />
+                <Logo variant="icon" />
                 <h2 className="text-2xl font-bold text-white">SafeTrail Registration</h2>
               </div>
               <Link to="/" className="text-white/80 hover:text-white transition-colors">

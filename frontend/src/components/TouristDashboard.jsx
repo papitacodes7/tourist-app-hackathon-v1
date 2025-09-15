@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { api, useAuth } from '../App.jsx';
 import QRCode from 'react-qr-code';
 import TouristMap from './TouristMap.jsx';
+import Logo from './Logo.jsx';
 
 const TouristDashboard = () => {
   const { user, logout } = useAuth();
@@ -162,7 +163,7 @@ const TouristDashboard = () => {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Shield className="w-8 h-8 text-blue-600" />
+              <Logo variant="icon" context="dashboard" size="default" />
               <div>
                 <h1 className="text-xl font-bold text-gray-800">Tourist Dashboard</h1>
                 <p className="text-sm text-gray-600">Welcome back, {user.full_name}</p>

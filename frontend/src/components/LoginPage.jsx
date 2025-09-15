@@ -4,6 +4,7 @@ import { Shield, Mail, Lock, LogIn, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../App.jsx';
 import { useAuth } from '../App.jsx';
+import Logo from './Logo.jsx';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -34,7 +35,6 @@ const LoginPage = () => {
       
       if (response.data.access_token) {
         login(response.data.access_token, response.data.user);
-        toast.success(`Welcome back, ${response.data.user.full_name}!`);
         
         // Redirect based on role
         if (response.data.user.role === 'tourist') {
@@ -75,7 +75,7 @@ const LoginPage = () => {
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <Shield className="w-8 h-8 text-white" />
+                <Logo variant="icon" />
                 <h2 className="text-2xl font-bold text-white">SafeTrail Login</h2>
               </div>
               <Link to="/" className="text-white/80 hover:text-white transition-colors">
